@@ -4,15 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { signIn } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  LoginFormSchema,
-  type LoginFormFields,
-} from "@/app/(features)/(auth)/login/types/login-form-fields";
 import { useState } from "react";
+import {
+  SignUpFormSchema,
+  type SignUpFormFields,
+} from "@/app/(features)/(auth)/criar-conta/types/sign-up-form-fields";
+import { saveUser, getUsers } from "@/lib/users";
+import { v4 as uuidv4 } from "uuid";
 
-export const LoginForm = () => {
+export const SignUpForm = () => {
   const router = useRouter();
   const [error, setError] = useState("");
 
@@ -20,26 +21,24 @@ export const LoginForm = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormFields>({
+  } = useForm<SignUpFormFields>({
     reValidateMode: "onSubmit",
-    resolver: zodResolver(LoginFormSchema),
+    resolver: zodResolver(SignUpFormSchema),
   });
 
-  const onSubmit = async (data: LoginFormFields) => {
+  const onSubmit = (data: SignUpFormFields) => {
     setError("");
 
-    const result = await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    });
+    const users = getUsers();
+    const userExists = users.some((user) => user.email === data.email);
 
-    if (result?.error) {
-      setError("Usuário ou senha inválidos");
+    if (userExists) {
+      setError("E-mail já cadastrado!");
       return;
     }
 
-    router.replace("/");
+    saveUser({ id: uuidv4(), ...data });
+    router.push("/login");
   };
 
   return (
@@ -48,8 +47,16 @@ export const LoginForm = () => {
 
       <div className="flex flex-col gap-2">
         <Input 
+          type="text" 
+          placeholder="Nome" 
+          {...register("name")} 
+          className={errors.name ? "border-red-500" : ""}
+        />
+        {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
+
+        <Input 
           type="email" 
-          placeholder="Email" 
+          placeholder="E-mail" 
           {...register("email")} 
           className={errors.email ? "border-red-500" : ""}
         />
@@ -57,7 +64,7 @@ export const LoginForm = () => {
 
         <Input 
           type="password" 
-          placeholder="Digite sua senha" 
+          placeholder="Senha" 
           {...register("password")} 
           className={errors.password ? "border-red-500" : ""}
         />
@@ -65,16 +72,16 @@ export const LoginForm = () => {
       </div>
 
       <Button type="submit" disabled={isSubmitting} className="w-full">
-        {isSubmitting ? "Entrando..." : "Entrar"}
+        {isSubmitting ? "Criando conta..." : "Criar Conta"}
       </Button>
 
       <p className="text-sm text-center mt-2">
-        Ainda não tem uma conta?
-        <span 
+        Já tem uma conta?{" "}
+        <span
           className="text-blue-500 cursor-pointer hover:underline"
-          onClick={() => router.push("/criar-conta")}
+          onClick={() => router.push("/login")}
         >
-          Criar conta
+          Fazer login
         </span>
       </p>
     </form>
