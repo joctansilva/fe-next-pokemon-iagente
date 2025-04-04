@@ -42,18 +42,21 @@ export const auth = {
       throw new Error("Senha incorreta");
     }
 
-    // Simula a sessão
-    localStorage.setItem("next-auth-session", JSON.stringify({
+    const session = {
       user: {
         id: user.id,
         name: user.name,
         email: user.email
       },
       expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-    }));
+    };
 
-    return { ok: true };
+    // Simula a sessão
+    localStorage.setItem("next-auth-session", JSON.stringify(session));
+
+    return session;
   },
+  
   signOut: () => {
     localStorage.removeItem("next-auth-session");
     return Promise.resolve();

@@ -5,9 +5,12 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginFormSchema, type LoginFormFields } from "@/app/(features)/(auth)/login/types/login-form-fields";
+import {
+  LoginFormSchema,
+  type LoginFormFields,
+} from "@/app/(features)/(auth)/login/types/login-form-fields";
 import { useState } from "react";
-import { signIn } from "@/auth"; // Importamos nossa implementação customizada
+import { signIn } from "@/auth";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -28,13 +31,14 @@ export const LoginForm = () => {
     setIsSubmitting(true);
 
     try {
-      await signIn({
+      const result = await signIn({
         email: data.email,
         password: data.password,
       });
       
-      // Redireciona para a página inicial após login bem-sucedido
-      router.replace("/");
+      if (result) {
+        window.location.href = "/"; 
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Usuário ou senha inválidos");
     } finally {
@@ -44,11 +48,7 @@ export const LoginForm = () => {
 
   return (
     <form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
-      {error && (
-        <p className="text-red-500 text-sm">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-red-500 text-sm">{error}</p>}
 
       <div className="flex flex-col gap-2">
         <Input
@@ -58,9 +58,7 @@ export const LoginForm = () => {
           className={errors.email ? "border-red-500" : ""}
         />
         {errors.email && (
-          <p className="text-red-500 text-xs">
-            {errors.email.message}
-          </p>
+          <p className="text-red-500 text-xs">{errors.email.message}</p>
         )}
 
         <Input
@@ -70,17 +68,11 @@ export const LoginForm = () => {
           className={errors.password ? "border-red-500" : ""}
         />
         {errors.password && (
-          <p className="text-red-500 text-xs">
-            {errors.password.message}
-          </p>
+          <p className="text-red-500 text-xs">{errors.password.message}</p>
         )}
       </div>
 
-      <Button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full"
-      >
+      <Button type="submit" disabled={isSubmitting} className="w-full">
         {isSubmitting ? "Entrando..." : "Entrar"}
       </Button>
 
@@ -88,7 +80,7 @@ export const LoginForm = () => {
         Ainda não tem uma conta?
         <span
           className="text-blue-500 cursor-pointer hover:underline ml-1"
-          onClick={() => router.push("/criar-conta")}
+          onClick={() => router.push("/cadastro")}
         >
           Criar conta
         </span>

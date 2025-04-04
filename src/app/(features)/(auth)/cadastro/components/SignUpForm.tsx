@@ -9,7 +9,7 @@ import { useState } from "react";
 import {
   SignUpFormSchema,
   type SignUpFormFields,
-} from "@/app/(features)/(auth)/criar-conta/types/sign-up-form-fields";
+} from "@/app/(features)/(auth)/cadastro/types/sign-up-form-fields";
 import { register as authRegister } from "@/auth";
 
 export const SignUpForm = () => {

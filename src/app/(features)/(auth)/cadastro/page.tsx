@@ -1,4 +1,4 @@
-import { SignUpForm } from "@/app/(features)/(auth)/criar-conta/components/SignUpForm";
+import { SignUpForm } from "@/app/(features)/(auth)/cadastro/components/SignUpForm";
 
 export default function SignUpPage() {
   return (
