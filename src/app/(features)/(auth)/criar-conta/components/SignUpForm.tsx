@@ -10,35 +10,39 @@ import {
   SignUpFormSchema,
   type SignUpFormFields,
 } from "@/app/(features)/(auth)/criar-conta/types/sign-up-form-fields";
-import { saveUser, getUsers } from "@/lib/users";
-import { v4 as uuidv4 } from "uuid";
+import { register as authRegister } from "@/auth";
 
 export const SignUpForm = () => {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<SignUpFormFields>({
     reValidateMode: "onSubmit",
     resolver: zodResolver(SignUpFormSchema),
   });
 
-  const onSubmit = (data: SignUpFormFields) => {
+  const onSubmit = async (data: SignUpFormFields) => {
     setError("");
+    setIsSubmitting(true);
 
-    const users = getUsers();
-    const userExists = users.some((user) => user.email === data.email);
-
-    if (userExists) {
-      setError("E-mail já cadastrado!");
-      return;
+    try {
+      await authRegister({
+        name: data.name,
+        email: data.email,
+        password: data.password
+      });
+      
+      router.push("/login");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao criar conta");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    saveUser({ id: uuidv4(), ...data });
-    router.push("/login");
   };
 
   return (

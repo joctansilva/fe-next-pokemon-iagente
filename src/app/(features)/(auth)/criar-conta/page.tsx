@@ -1,8 +1,6 @@
 import { SignUpForm } from "@/app/(features)/(auth)/criar-conta/components/SignUpForm";
 
-
-
-export default function SignInPage() {
+export default function SignUpPage() {
   return (
     <div className="flex flex-col items-center justify-center gap-10">
       <div className="flex flex-col items-center gap-3">
